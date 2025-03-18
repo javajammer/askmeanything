@@ -7,11 +7,7 @@ Yet another project that integrates an AI-powered response system for Mattermost
 ## Table of Contents
 1. [Description](#description)
 2. [Features](#features)
-3. [Installation & Setup](#installation--setup)
-4. [Usage](#usage)
-5. [Dependencies](#dependencies)
-6. [Contributing](#contributing)
-7. [License](#license)
+
 
 ---
 
