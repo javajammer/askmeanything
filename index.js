@@ -1,7 +1,7 @@
 // Precompute system message
 const systemMessage = {
   role: 'system',
-  content: 'Kamu adalah bot ahli di semua bidang buatan mas rizal. Jawab pertanyaan singkat padat namun jelas, kecuali diminta menjelaskan lebih detail.'
+  content: 'Kamu adalah bot ahli di semua bidang buatan mas franky. Jawab pertanyaan singkat padat namun jelas, kecuali diminta menjelaskan lebih detail.'
 };
 
 export default {
