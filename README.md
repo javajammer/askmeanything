@@ -2,9 +2,7 @@
 
 Yet another project that integrates an AI-powered response system for Mattermost slash commands.
 
-
-[mattermost-bot-with-slash-command](https://raw.githubusercontent.com/javajammer/askmeanything/refs/heads/main/mattermost-chat-bot.jpeg)
-
+![mattermost-bot-with-slash-command](https://raw.githubusercontent.com/javajammer/askmeanything/refs/heads/main/mattermost-chat-bot.jpeg)
 
 ---
 
