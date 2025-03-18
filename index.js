@@ -1,73 +1,72 @@
+// Precompute system message
+const systemMessage = {
+  role: 'system',
+  content: 'Kamu adalah bot ahli di semua bidang buatan mas rizal. Jawab pertanyaan singkat padat namun jelas, kecuali diminta menjelaskan lebih detail.'
+};
+
 export default {
-    async fetch(request, env) {
-        try {
-            let body;
-            try {
-                // Coba parsing sebagai JSON terlebih dahulu (optimasi jika JSON umum)
-                body = await request.json();
-            } catch (jsonError) {
-                // Jika gagal, coba parsing sebagai form-data
-                body = await request.formData();
-            }
+  async fetch(request, env) {
+    try {
+      let body;
+      const contentType = request.headers.get("Content-Type") || "";
 
-            const text = body.text || body.get("text") || "";
-            const userName = body.user_name || body.get("user_name") || "User";
-            const channelId = body.channel_id || body.get("channel_id") || "";
+      // Cek Content-Type dengan startsWith (lebih cepat)
+      if (contentType.startsWith("application/json")) {
+        body = await request.json();
+      } else {
+        body = await request.formData();
+      }
 
-            const aiResponse = await analyzeQuestionWithAI(text, env);
+      // Akses properti dengan destructuring
+      const text = body.text || body.get("text") || "";
+      const userName = body.user_name || body.get("user_name") || "User";
 
-            const responseMessage = `
-                @${userName} bertanya: "${text}"
-                Jawaban: ${aiResponse}
-            `;
+      // Validasi input
+      if (!text) {
+        throw new Error("Tidak ada pertanyaan yang disertakan.");
+      }
 
-            return new Response(JSON.stringify({
-                response_type: "in_channel",
-                text: responseMessage
-            }), {
-                headers: { "Content-Type": "application/json" }
-            });
+      // Panggil AI
+      const aiResponse = await analyzeQuestionWithAI(text, env);
 
-        } catch (error) {
-            console.error("Error processing webhook:", error);
-            // Log error yang lebih detail (contoh)
-            console.error(error.stack);
-            return new Response(JSON.stringify({
-                response_type: "ephemeral",
-                text: "Terjadi kesalahan saat memproses pertanyaan."
-            }), {
-                headers: { "Content-Type": "application/json" }
-            });
-        }
+      // Format respons dengan operasi string yang lebih efisien
+      const responseMessage = 
+        "@" + userName + " bertanya: \"" + text + "\"\nJawaban: " + aiResponse.trim();
+
+      return new Response(JSON.stringify({
+        response_type: "in_channel",
+        text: responseMessage
+      }), {
+        headers: { "Content-Type": "application/json" }
+      });
+    } catch (error) {
+      console.error("Error processing webhook:", error);
+      return new Response(JSON.stringify({
+        response_type: "ephemeral",
+        text: "Terjadi kesalahan saat memproses pertanyaan."
+      }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" }
+      });
     }
+  }
 };
 
 async function analyzeQuestionWithAI(question, env) {
-    try {
-        const chatInput = {
-            messages: [
-                { role: 'system', content: 'Kamu adalah ahli di semua bidang. Jawab pertanyaan singkat padat namun jelas, kecuali diminta menjelaskan lebih detail.' },
-                { role: 'user', content: question }
-            ]
-        };
-
-        const response = await env.AI.run('@cf/meta/llama-3.1-8b-instruct-fp8', chatInput);
-
-        const output = response.response || "Maaf, saya tidak bisa menjawab pertanyaan ini.";
-        console.log("Raw AI Response:", output);
-
-        const parsedOutput = parseAnalysisOutput(output);
-
-        return parsedOutput.fullResponse;
-    } catch (error) {
-        console.error("Error analyzing question with AI:", error);
-        return "Terjadi kesalahan saat memproses pertanyaan.";
-    }
-}
-
-const parseAnalysisOutput = (output) => {
-    const lines = output.split("\n").map(line => line.trim());
-    return {
-        fullResponse: lines.join(" ")
+  try {
+    const chatInput = {
+      messages: [
+        systemMessage,
+        { role: 'user', content: question }
+      ]
     };
-};
+
+    const response = await env.AI.run('@cf/meta/llama-3.1-8b-instruct-fp8', chatInput);
+    const output = response.response || "Maaf, saya tidak bisa menjawab pertanyaan ini.";
+    console.log("Raw AI Response:", output);
+    return output.trim(); // Hapus whitespace berlebih
+  } catch (error) {
+    console.error("Error analyzing question with AI:", error);
+    return "Terjadi kesalahan saat memproses pertanyaan.";
+  }
+}
