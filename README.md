@@ -16,7 +16,7 @@ Yet another project that integrates an AI-powered response system for Mattermost
 ---
 
 ## Description
-This repository contains a Cloudflare Worker that processes Mattermost slash commands using an AI model (Llama-3.1-8B) to generate responses. It provides a seamless way to integrate AI-driven answers directly into Mattermost channels [[1]][[3]].
+This repository contains a Cloudflare Worker that processes Mattermost slash commands using an AI model (Llama-3.1-8B) to generate responses. It provides a seamless way to integrate AI-driven answers directly into Mattermost channels.
 
 ---
 
